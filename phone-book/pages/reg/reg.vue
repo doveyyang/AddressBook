@@ -66,15 +66,45 @@
                 const data = {
                     account: this.account,
                     password: this.password,
-                    email: this.email
+                    email: this.email,
+					nickname:this.account
                 }
-                service.addUser(data);
-                uni.showToast({
-                    title: '注册成功'
-                });
-                uni.navigateBack({
-                    delta: 1
-                });
+				let self = this;
+				// debugger;
+				// 添加用户
+				uni.request({
+					url:`${service.BASEURL}/User/register`,
+					data: data,
+					method:'POST',
+					header:{
+						"content-type":"application/json"
+					},
+					success: (res) => {
+						debugger;
+						console.log(res.data);
+						if(res.data && res.data.code!=200){
+							uni.showToast({
+							    title: res.data.msg,
+								icon:'none'
+							});
+						}else{
+							service.addUser(data);
+							uni.showToast({
+							    title: '注册成功'
+							});
+							uni.navigateBack({
+							    delta: 1
+							});
+						}
+						
+					},
+					fail(e) {
+						debugger;
+						console.log('fail',e)
+					}
+				})
+				
+                
             }
         }
     }

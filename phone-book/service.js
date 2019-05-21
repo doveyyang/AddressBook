@@ -1,6 +1,7 @@
 // 管理账号信息
 const USERS_KEY = 'USERS_KEY';
 const STATE_KEY = 'STATE_KEY';
+const BASEURL = '//addressbook.jingru88.com/api';
 
 const getUsers = function () {
     let ret = '';
@@ -12,6 +13,7 @@ const getUsers = function () {
 }
 
 const addUser = function (userInfo) {
+	
     let users = getUsers();
     users.push({
         account: userInfo.account,
@@ -22,5 +24,6 @@ const addUser = function (userInfo) {
 
 export default {
     getUsers,
-    addUser
+    addUser,
+	BASEURL
 }

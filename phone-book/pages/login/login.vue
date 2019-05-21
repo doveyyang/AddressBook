@@ -102,17 +102,48 @@
                     account: this.account,
                     password: this.password
                 };
-                const validUser = service.getUsers().some(function (user) {
-                    return data.account === user.account && data.password === user.password;
-                });
-                if (validUser) {
-                    this.toMain(this.account);
-                } else {
-                    uni.showToast({
-                        icon: 'none',
-                        title: '用户账号或密码不正确',
-                    });
-                }
+				// uni.request({
+				// 	url: `${service.BASEURL}/`
+				// })
+				uni.request({
+					url:`${service.BASEURL}/User/login`,
+					data: data,
+					method:'POST',
+					header:{
+						"content-type":"application/json"
+					},
+					success: (res) => {
+						debugger;
+						console.log(res.data);
+						if(res.data && res.data.code!=200){
+							uni.showToast({
+							    title: res.data.msg,
+								icon:'none'
+							});
+						}else{
+							service.addUser(data);
+							
+							const validUser = service.getUsers().some(function (user) {
+							    return data.account === user.account && data.password === user.password;
+							});
+							if (validUser) {
+							    this.toMain(this.account);
+							} else {
+							    uni.showToast({
+							        icon: 'none',
+							        title: '用户账号或密码不正确',
+							    });
+							}
+						}
+						
+					},
+					fail(e) {
+						debugger;
+						console.log('fail',e)
+					}
+				})
+				
+                
             },
             oauth(value) {
                 uni.login({
