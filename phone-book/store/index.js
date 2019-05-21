@@ -10,7 +10,9 @@ const store = new Vuex.Store({
          */
         forcedLogin: false,
         hasLogin: false,
-        userName: ""
+        userName: "",
+		info:"",
+		password:'',
     },
     mutations: {
         login(state, userName) {
@@ -20,8 +22,22 @@ const store = new Vuex.Store({
         logout(state) {
             state.userName = "";
             state.hasLogin = false;
-        }
-    }
+        },
+		info(state,info){
+			state.info = info;
+		},
+		Pwd(state,pwd){
+			state.password = pwd;
+		}
+    },
+	actions:{
+		SetInfo(context,info){
+			context.commit('info',info)
+		},
+		setPwd(context,pwd){
+			context.commit('Pwd',pwd)
+		}
+	}
 })
 
 export default store

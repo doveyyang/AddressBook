@@ -37,12 +37,12 @@
             return {
                 providerList: [],
                 hasProvider: false,
-                account: '11111',
-                password: '111111',
+                account: '110',
+                password: '123456',
                 positionTop: 0
             }
         },
-        computed: mapState(['forcedLogin']),
+        computed: mapState(['forcedLogin', 'hasLogin', 'userName','info']),
         methods: {
             ...mapMutations(['login']),
             initProvider() {
@@ -79,7 +79,8 @@
                  * 客户端对账号信息进行一些必要的校验。
                  * 实际开发中，根据业务需要进行处理，这里仅做示例。
                  */
-                if (this.account.length < 5) {
+				let self = this;
+                if (this.account.length < 3) {
                     uni.showToast({
                         icon: 'none',
                         title: '账号最短为 5 个字符'
@@ -113,7 +114,6 @@
 						"content-type":"application/json"
 					},
 					success: (res) => {
-						debugger;
 						console.log(res.data);
 						if(res.data && res.data.code!=200){
 							uni.showToast({
@@ -121,12 +121,14 @@
 								icon:'none'
 							});
 						}else{
-							service.addUser(data);
 							
+							service.addUser(data);
 							const validUser = service.getUsers().some(function (user) {
 							    return data.account === user.account && data.password === user.password;
 							});
 							if (validUser) {
+								this.$store.dispatch('SetInfo',JSON.stringify(res.data.datas))
+								this.$store.dispatch('setPwd',self.password)
 							    this.toMain(this.account);
 							} else {
 							    uni.showToast({
@@ -176,7 +178,9 @@
                         url: '../main/main',
                     });
                 } else {
-                    uni.navigateBack();
+                    uni.reLaunch({
+                        url: '../main/main',
+                    });
                 }
 
             }

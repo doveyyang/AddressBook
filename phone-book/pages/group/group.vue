@@ -2,7 +2,7 @@
 	<view >
 		<cu-custom bgColor="bg-gradual-blue" :isBack="true">
 			<block slot="backText">返回</block>
-			<block slot="content">分组一</block>
+			<block slot="content">{{title}}</block>
 			<block slot="right">
 				<view class="right-box" @click="showModal" data-target="RadioModal">
 					编辑
@@ -33,19 +33,19 @@
 				</view>
 			</view>
 			<view class="cu-list menu-avatar">
-				<view class="cu-item">
-					<view class="cu-avatar round lg" style="background-image:url(https://ossweb-img.qq.com/images/lol/web201310/skin/big10001.jpg);"></view>
+				<view class="cu-item" v-for="(person,index) in personList" :key = "index" >
+					<view class="cu-avatar round lg" :style="'background-image:url('+person.head+');'"></view>
 					<view class="content">
-						<view class="text-grey">李菊岚</view>
+						<view class="text-grey">{{person.name}}</view>
 						<view class="text-gray text-sm flex">
 							<text class="text-cut">
 								<text class="cuIcon-infofill text-red  margin-right-xs"></text>
-								需要保持长期跟进联系
+								{{person.company}} 
 							</text>
 						</view>
 					</view>
 					<view class="action">
-						<view class="text-grey text-xs text-cut">总经理</view>
+						<view class="text-grey text-xs text-cut">{{person.position}}</view>
 						<!-- <view class="cu-tag round bg-grey sm"></view> -->
 					</view>
 				</view>
@@ -70,13 +70,14 @@
 	</view>
 </template>
 
-<script>
-import { mapState } from 'vuex';
-
+<script>	
+import { mapState,
+	    mapMutations } from 'vuex';
+import service from '../../service.js'
 export default {
 	data() {
 		return {
-			list: [{ name: '列表一', count: '2', id: 1 }, { name: '列表二', count: '3', id: 2 }],
+			list: [],
 			menuArrow: true,
 			menuBorder: false,
 			menuCard: false,
@@ -87,6 +88,7 @@ export default {
 					badge: 0,
 					name: '分组',
 					page: '/pages/addgroup/addgroup'
+					
 				},
 				{
 					icon: 'add',
@@ -105,11 +107,20 @@ export default {
 			],
 			modalName: null,
 			gridCol: 3,
-			gridBorder: false
+			gridBorder: false,
+			currentId:-1,
+			personList:[],
+			title:""
 		};
 	},
-	computed: mapState(['forcedLogin', 'hasLogin', 'userName']),
+	computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
 	onLoad(option) {
+		if(!this.hasLogin){
+			// 获取id失败，重新到某个页面
+			uni.reLaunch({
+				url: '../main/main'
+			});
+		}
 		console.log(option.id);
 		console.log(JSON.stringify(option));
 		if (!option.id) {
@@ -117,21 +128,110 @@ export default {
 			uni.reLaunch({
 				url: '../main/main'
 			});
+		}else{
+			
+			this.currentId = option.id;
+			this.initData();
 		}
-		uni.setNavigationBarTitle({
-			title:'分组一'
-		})
+		
+		
 	},
+	
 	methods: {
+		initData(){
+			// 获取当前列表下的用户
+			let self = this;
+			if(!this.hasLogin) return;
+			let ndata = JSON.parse(this.info);
+			let data = {}
+			data.password = this.password;
+			data.id = ndata.id;
+			data.account = ndata.account;
+			data.token = ndata.token;
+			data.level = 0;
+			uni.request({
+				url:`${service.BASEURL}/Addressbook/index`,
+				data: data,
+				method:'POST',
+				header:{
+					"content-type":"application/json"
+				},
+				success: (res) => {
+					if(res.data && res.data.code!=200){
+						uni.showToast({
+						    title: res.data.msg,
+							icon:'none'
+						});
+					}else{
+						let list = res.data.data;
+						
+						for (let i = 0; i < list.length; i++) {
+							if(list[i].id == self.currentId){
+								self.personList = list[i].list ;
+								console.log(list[i].name);
+								self.setTitle(list[i].name); 
+								break;
+							}
+							
+						}
+					}
+				},
+			})
+			let data2 = {}
+			data2.password = this.password;
+			data2.id = ndata.id;
+			data2.account = ndata.account;
+			data2.token = ndata.token;
+			data2.level = this.currentId;
+			// 获取该组下的分组
+			uni.request({
+				url:`${service.BASEURL}/Addressbook/index`,
+				data: data2,
+				method:'POST',
+				header:{
+					"content-type":"application/json"
+				},
+				success: (res) => {
+					if(res.data && res.data.code!=200){
+						uni.showToast({
+						    title: res.data.msg,
+							icon:'none'
+						});
+					}else{
+						self.list = res.data.data;
+						
+						for (let i = 0; i < self.list.length; i++) {
+							self.list[i].count = `${self.list[i].list.length}`;
+						}
+					}
+				},
+			})
+		},
 		gotogroup(id) {
 			uni.redirectTo({
 				url: `/pages/group/group?id=${id}`
 			});
 		},
+		setTitle(name){
+			this.title = name;
+		},
 		gotoUrl(url){
-			uni.navigateTo({
-				url:url
-			})
+			switch (url){
+				case '/pages/addgroup/addgroup':
+					uni.navigateTo({
+						url:`${url}?id=${this.currentId}`
+					})
+					break;
+					
+				case '/pages/addperson/addperson':
+					uni.navigateTo({
+						url:`${url}?id=${this.currentId}`
+					})
+					break;
+				default:
+					break;
+			}
+			
 		},
 		showModal(e) {
 			// debugger;
