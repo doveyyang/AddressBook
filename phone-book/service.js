@@ -2,6 +2,7 @@
 const USERS_KEY = 'USERS_KEY';
 const STATE_KEY = 'STATE_KEY';
 const BASEURL = '//addressbook.jingru88.com/api';
+const BASEIMGURL = 'http://addressbook.jingru88.com/uploads/images/'
 
 const getUsers = function () {
     let ret = '';
@@ -25,5 +26,6 @@ const addUser = function (userInfo) {
 export default {
     getUsers,
     addUser,
-	BASEURL
+	BASEURL,
+	BASEIMGURL
 }

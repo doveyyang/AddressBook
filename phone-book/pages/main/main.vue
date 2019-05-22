@@ -87,7 +87,9 @@
 				data.account = ndata.account;
 				data.token = ndata.token;
 				data.level = 0;
-				
+				uni.showToast({
+					icon:'loading'					
+				})
 				uni.request({
 					url:`${service.BASEURL}/Addressbook/index`,
 					data: data,
@@ -122,7 +124,7 @@
 			addGroup(){
 				// 添加分组
 				uni.navigateTo({
-					url:"../addgroup/addgroup"
+					url:"../addmaingroup/addmaingroup"
 				})
 			}
 		}

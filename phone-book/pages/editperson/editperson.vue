@@ -2,7 +2,7 @@
 	<view>
 		<form>			
 			<view class="cu-form-group margin-top">
-				<view class="title">录入日期</view>
+			<view class="title">录入日期</view>
 				<picker mode="date" :value="date" start="2019-01-01" end="2020-01-01" @change="DateChange">
 					<view class="picker">
 						{{date}}
@@ -73,7 +73,7 @@
 				modalName: null,
 				textareaAValue: '',
 				textareaBValue: '',
-				pId:'',
+				Id:'',
 				name:'李小龙',
 				phone:'15555555555',
 				company:'四川净入',
@@ -92,19 +92,64 @@
 					url: '../main/main'
 				});
 			}
-			if (!option.id ) {
+			if (!option.cid ) {
 				// 获取id失败，重新到某个页面
 				uni.reLaunch({
 					url: '../main/main'
 				});
 			}else{
 				
-				this.pId = option.id;
-				
+				this.Id = option.cid;
+				this.initdata();
 			}
 		},
 		computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
 		methods:{
+			initdata(){
+				// 获取当前列表下的用户
+				let self = this;
+				if(!this.hasLogin) return;
+				let ndata = JSON.parse(this.info);
+				let data = {}
+				data.password = this.password;
+				data.id = ndata.id;
+				data.account = ndata.account;
+				data.token = ndata.token;
+				
+				data.bid = this.Id;
+				
+				uni.showToast({
+					icon:"loading",
+					duration:1500
+				})
+				uni.request({
+					url:`${service.BASEURL}/Addressbook/getInfo`,
+					data: data,
+					method:'POST',
+					header:{
+						"content-type":"application/json"
+					},
+					success: (res) => {
+						if(res.data && res.data.code!=200){
+							uni.showToast({
+							    title: res.data.msg,
+								icon:'none'
+							});
+						}else{
+							let record = res.data.data;
+							self.name =  record.name;
+							self.phone = record.mobile;
+							self.company = record.company;
+							self.email = record.email;
+							self.position = record.position;
+							self.headUrl = record.head_img;
+							if(record.head_img){
+								self.imgList.push( service.BASEIMGURL+record.head_img)
+							}
+						}
+					},
+				})
+			},
 			submit(){
 				let self = this;
 				if(!this.hasLogin) return;
@@ -121,11 +166,12 @@
 				data.email = this.email;
 				data.position = this.position;
 				data.sort = this.sort;
-				data.team = this.pId;
+				// data.team = this.pId;
 				data.head_img = this.headUrl;
+				data.bid = this.Id;
 				
 				uni.request({
-					url:`${service.BASEURL}/Addressbook/append`,
+					url:`${service.BASEURL}/Addressbook/edit_info`,
 					data: data,
 					method:'POST',
 					header:{
@@ -141,8 +187,11 @@
 							uni.showToast({
 							    title: res.data.msg,
 								success() {
-									uni.navigateTo({
-										url:'../group/group?id='+self.pId
+									// uni.navigateTo({
+									// 	url:'../group/group?id='+self.Id
+									// })
+									uni.navigateBack({
+										delta:1
 									})
 								}
 							});
@@ -173,7 +222,6 @@
 								res.data = JSON.parse(res.data);
 								if(res.data.status == 1){
 									self.headUrl = res.data.info
-									
 									if (self.imgList.length != 0) {
 										self.imgList = self.imgList.concat(res1.tempFilePaths)
 									} else {
@@ -181,49 +229,20 @@
 									}
 									
 									uni.showToast({
-										title:'上传成功'
+										title:'上传成功',
+										icon:'none'
 									})
 								}
 								
 							}
 						});
-						
-						// uni.request({
-						// 	url:`${service.BASEURL}/Addressbook/append`,
-						// 	data: data,
-						// 	method:'POST',
-						// 	header:{
-						// 		"content-type":"application/json"
-						// 	},
-						// 	success: (res) => {
-						// 		if(res.data && res.data.code!=200){
-						// 			uni.showToast({
-						// 			    title: res.data.msg,
-						// 				icon:'none'
-						// 			});
-						// 		}else{
-						// 			uni.showToast({
-						// 			    title: res.data.msg,
-						// 				success() {
-						// 					uni.navigateTo({
-						// 						url:'../group/group?id='+self.pId
-						// 					})
-						// 				}
-						// 			});
-						// 			
-						// 		}
-						// 	},
-						// })
-						
-						
-						
 					}
 				});
 			},
 			ViewImage(e) {
 				uni.previewImage({
 					urls: this.imgList,
-					current: e.currentTarget.dataset.url
+					current:e.currentTarget.dataset.url
 				});
 			},
 			DelImg(e) {
@@ -246,5 +265,9 @@
 <style lang="scss">
 .btn-row{
 	padding: 20upx;
+}
+input{
+	text-align: right;
+	color: #999;
 }
 </style>

@@ -3,11 +3,11 @@
 		<cu-custom bgColor="bg-gradual-blue" :isBack="true">
 			<block slot="backText">返回</block>
 			<block slot="content">{{title}}</block>
-			<block slot="right">
+			<!-- <block slot="right">
 				<view class="right-box" @click="showModal" data-target="RadioModal">
 					编辑
 				</view>
-			</block>
+			</block> -->
 		</cu-custom>
 		<view class="content">
 			<view class="cu-list grid" :class="['col-' + gridCol, gridBorder ? '' : 'no-border']">
@@ -31,10 +31,13 @@
 						<text class="text-grey text-sm">{{ item.count }} 人</text>
 					</view>
 				</view>
+				<view class="empty" v-if="list.length == 0">
+					没有子分组
+				</view>
 			</view>
 			<view class="cu-list menu-avatar">
-				<view class="cu-item" v-for="(person,index) in personList" :key = "index" >
-					<view class="cu-avatar round lg" :style="'background-image:url('+person.head+');'"></view>
+				<view class="cu-item" v-for="(person,index) in personList" :key = "index" @click="showDetail(person)">
+					<view class="cu-avatar round lg" :style="'background-image:url(//addressbook.jingru88.com/uploads/images/'+person.head_img+');'"></view>
 					<view class="content">
 						<view class="text-grey">{{person.name}}</view>
 						<view class="text-gray text-sm flex">
@@ -48,6 +51,9 @@
 						<view class="text-grey text-xs text-cut">{{person.position}}</view>
 						<!-- <view class="cu-tag round bg-grey sm"></view> -->
 					</view>
+				</view>
+				<view class="empty" v-if="personList.length == 0">
+					未添加好友
 				</view>
 			</view>
 			
@@ -96,6 +102,12 @@ export default {
 					badge: 0,
 					name: '联系人',
 					page: '/pages/addperson/addperson'
+				},{
+					icon: 'edit',
+					color: 'orange',
+					badge: 0,
+					name: '编辑',
+					page: 'edit'
 				},
 				{
 					icon: 'share',
@@ -106,7 +118,7 @@ export default {
 				}
 			],
 			modalName: null,
-			gridCol: 3,
+			gridCol: 4,
 			gridBorder: false,
 			currentId:-1,
 			personList:[],
@@ -139,6 +151,7 @@ export default {
 	
 	methods: {
 		initData(){
+			
 			// 获取当前列表下的用户
 			let self = this;
 			if(!this.hasLogin) return;
@@ -149,6 +162,10 @@ export default {
 			data.account = ndata.account;
 			data.token = ndata.token;
 			data.level = 0;
+			uni.showToast({
+				icon:"loading",
+				duration:1500
+			})
 			uni.request({
 				url:`${service.BASEURL}/Addressbook/index`,
 				data: data,
@@ -228,6 +245,12 @@ export default {
 						url:`${url}?id=${this.currentId}`
 					})
 					break;
+				case 'edit':
+					this.showModal()
+					// uni.navigateTo({
+					// 	url:`${url}?id=${this.currentId}`
+					// })
+					break;
 				default:
 					break;
 			}
@@ -235,24 +258,33 @@ export default {
 		},
 		showModal(e) {
 			// debugger;
-			this.modalName = e.currentTarget.dataset.target
+			this.modalName = "RadioModal";//e.currentTarget.dataset.target
 		},
 		hideModal(e) {
 			this.modalName = null
 		},
 		editgroup(){
 			this.hideModal();
-
 			console.log('编辑分组')
-			uni.showToast({
-				title:'编辑分组'
+			uni.navigateTo({
+				url:`../addgroup/addgroup?id=${this.currentId}&isEdit=true&name=${this.title}`
 			})
+			
+			
+			// uni.showToast({
+			// 	title:'编辑分组'
+			// })
 		},
 		deletegroup(){
 			console.log('删除分组')
 			this.hideModal();
 			uni.showToast({
 				title:'删除分组'
+			})
+		},
+		showDetail(person){
+			uni.navigateTo({
+				url:`../editperson/editperson?cid=${person.id}`
 			})
 		}
 		
@@ -294,5 +326,9 @@ export default {
 }
 .right-box{
 	margin-right: 20upx;
+}
+.empty{
+	text-indent: 0.5em;
+	
 }
 </style>

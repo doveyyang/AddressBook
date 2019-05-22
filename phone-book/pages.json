@@ -29,12 +29,14 @@
         ,{
             "path" : "pages/addgroup/addgroup",
             "style" : {
-				"navigationBarTitleText": "添加分组"
+				"navigationBarTitleText": "分组管理"
 			}
         },{
             "path" : "pages/group/group",
             "style" : {
-				
+				"h5":{
+					"titleNView": false //禁用原生导航栏
+				}
 			}
         }
         ,{
@@ -44,7 +46,19 @@
         ,{
             "path" : "pages/addperson/addperson",
             "style" : {
-				"navigationBarTitleText":"添加用户"
+				"navigationBarTitleText":"用户添加"
+			}
+        }
+        ,{
+            "path" : "pages/editperson/editperson",
+            "style" : {
+            	"navigationBarTitleText":"用户编辑"
+            }
+        }
+        ,{
+            "path" : "pages/addmaingroup/addmaingroup",
+            "style" : {
+				"navigationBarTitleText":"添加主分组"
 			}
         }
     ],
@@ -53,12 +67,6 @@
         "selectedColor": "#0faeff",
         "backgroundColor": "#ffffff",
         "list": [
-			{
-			    "pagePath": "pages/sharegroup/sharegroup",
-			    "text": "分享",
-			    "iconPath": "static/img/home.png",
-			    "selectedIconPath": "static/img/homeHL.png"
-			}, 
 			{
             "pagePath": "pages/main/main",
             "text": "通讯录",

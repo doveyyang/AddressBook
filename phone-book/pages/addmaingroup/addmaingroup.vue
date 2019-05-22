@@ -2,8 +2,8 @@
 	<view>
 		<form>
 			<view class="cu-form-group margin-top">
-				<view class="title">分组名</view>
-				<input placeholder="请输入分组名称" v-model="name"></input>
+				<view class="title">主分组名</view>
+				<input placeholder="请输入主分组名称" v-model="name"></input>
 			</view>
 			<!-- <view class="cu-form-group">
 				<view class="title">输入框</view>
@@ -11,8 +11,7 @@
 			</view> -->
 		</form>
 		<view class="btn-view">
-			<button type="primary" @click="addgroup" v-if="!isEdit">添加分组</button>
-			<button type="primary" @click="editgroup" v-else>编辑分组</button>
+			<button type="primary" @click="addgroup" >添加主分组</button>
 		</view>
 	</view>
 </template>
@@ -26,8 +25,7 @@
 		data() {
 			return {
 				name:'',
-				pId : -1,
-				isEdit:false,
+				pId : -1
 			};
 		},
 		onLoad(option) {
@@ -36,20 +34,6 @@
 				uni.reLaunch({
 					url: '../main/main'
 				});
-			}
-			if (!option.id) {
-				// 获取id失败，重新到某个页面
-				uni.reLaunch({
-					url: '../main/main'
-				});
-			}else{
-				this.pId = option.id;
-			}
-			if(option.isEdit){
-				this.isEdit = true;
-				this.name = option.name;
-			}else{
-				ths.isEdit = false;
 			}
 		},
 		computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
@@ -64,7 +48,7 @@
 					data2.account = ndata.account;
 					data2.token = ndata.token;
 					
-					data2.level = this.pId;
+					data2.level = 0;
 					data2.name = this.name;
 					// 获取该组下的分组
 					uni.request({
@@ -84,8 +68,11 @@
 								uni.showToast({
 								    title: res.data.msg,
 									success() {
-										uni.navigateTo({
-											url:'../group/group?id='+self.pId
+										// uni.navigateTo({
+										// 	url:'../group/group?id='+self.pId
+										// })
+										uni.navigateBack({
+											delta:1
 										})
 									}
 								});
