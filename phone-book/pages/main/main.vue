@@ -8,11 +8,28 @@
 			<view class="action-row">
 				<button type="primary" plain @click='addGroup' >添加分组</button>					
 			</view>
-			<view class="list-view">				
+			<!-- <view class="list-view">				
 				<uni-list>
 					<uni-list-item @click="showDetail(item.id)" v-for="(item,index) in list" :title="item.name" :key="index" show-badge="true" :badge-text="item.count"></uni-list-item>
-					<!-- <uni-list-item title="禁用状态" disabled="true" show-badge="true" badge-text="12"></uni-list-item> -->
+					<uni-list-item title="禁用状态" disabled="true" show-badge="true" badge-text="12"></uni-list-item>
 				</uni-list>
+			</view> -->
+			<view class="cu-list menu-avatar">
+				<view class="cu-item group-item" :class="modalName=='move-box-'+ index?'move-cur':''" v-for="(item,index) in list" :key="index"
+				 @touchstart="ListTouchStart" @touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index" @click="showDetail(item.id)">
+					<view class=" cu-avatar round sm">
+						<text class="cuIcon-group_fill text-pink"></text>
+					</view>
+					<view class="content"  >
+						<view class="text-grey">{{item.name}}</view>
+					</view>
+					<view class="action">
+						<view class="cu-tag round bg-grey sm">{{item.count}} </view>
+					</view>
+					<view class="move">
+						<view class="bg-red" @click.stop="delgroup(item.id)">删除</view>
+					</view>
+				</view>
 			</view>
 				
         </view>
@@ -39,7 +56,10 @@
     export default {
 		data() {
 			return {
-				list:[]
+				list:[],
+				modalName: null,
+				listTouchStart: 0,
+				listTouchDirection: null,
 			}
 		},
 		components:{
@@ -104,7 +124,8 @@
 								icon:'none'
 							});
 						}else{
-							self.list = res.data.data;
+							debugger;
+							self.list = res.data.data.list;
 
 							for (let i = 0; i < self.list.length; i++) {
 								self.list[i].count = `${self.list[i].list.length}`;
@@ -126,6 +147,68 @@
 				uni.navigateTo({
 					url:"../addmaingroup/addmaingroup"
 				})
+			},
+			// ListTouch触摸开始
+			delgroup(id){
+				console.log('delete group',id)
+				let self = this;
+				uni.showToast({
+					icon:'loading'
+				})
+				
+				
+				let data2 = {}
+				data2.password = this.password;
+				let ndata = JSON.parse(this.info);
+				data2.id = ndata.id;
+				data2.account = ndata.account;
+				data2.token = ndata.token;
+				
+				data2.cid = id;
+				// 获取该组下的分组
+				uni.request({
+					url:`${service.BASEURL}/Addbookcategory/delcate`,
+					data: data2,
+					method:'POST',
+					header:{
+						"content-type":"application/json"
+					},
+					success: (res) => {
+						if(res.data && res.data.code!=200){
+							uni.showToast({
+							    title: res.data.msg,
+								icon:'none'
+							});
+						}else{
+							uni.showToast({
+							    title: res.data.msg,
+								success() {
+									self.initData()
+								}
+							});
+							
+						}
+					},
+				})
+			},
+			
+			ListTouchStart(e) {
+				this.listTouchStart = e.touches[0].pageX
+			},
+			
+			// ListTouch计算方向
+			ListTouchMove(e) {
+				this.listTouchDirection = e.touches[0].pageX - this.listTouchStart > 0 ? 'right' : 'left'
+			},
+			
+			// ListTouch计算滚动
+			ListTouchEnd(e) {
+				if (this.listTouchDirection == 'left') {
+					this.modalName = e.currentTarget.dataset.target
+				} else {
+					this.modalName = null
+				}
+				this.listTouchDirection = null
 			}
 		}
 	}
@@ -172,4 +255,11 @@
     .ul>view {
         line-height: 50upx;
     }
+	.group-item{
+			border-bottom: 1px solid #CCCCCC;
+			margin: 10upx 0;
+	}
+	.cu-list.menu-avatar>.cu-item{
+		height: 100upx;
+	}
 </style>
