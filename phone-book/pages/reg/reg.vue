@@ -30,9 +30,10 @@
         },
         data() {
             return {
-                account: '11111',
-                password: '111111',
-                email: '11@11.com'
+                account: '',
+                password: '',
+                email: '',
+				// head_img:""
             }
         },
         methods: {

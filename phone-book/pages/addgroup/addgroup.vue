@@ -49,7 +49,7 @@
 				this.isEdit = true;
 				this.name = option.name;
 			}else{
-				ths.isEdit = false;
+				this.isEdit = false;
 			}
 		},
 		computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
@@ -84,8 +84,11 @@
 								uni.showToast({
 								    title: res.data.msg,
 									success() {
-										uni.navigateTo({
-											url:'../group/group?id='+self.pId
+										// uni.navigateTo({
+										// 	url:'../group/group?id='+self.pId
+										// })
+										uni.navigateBack({
+											delta:1
 										})
 									}
 								});
@@ -140,8 +143,14 @@
 							uni.showToast({
 							    title: res.data.msg,
 								success() {
-									uni.navigateTo({
-										url:'../group/group?id='+self.pId
+									// uni.navigateTo({
+									// 	url:'../group/group?id='+self.pId
+									// })
+									
+								},
+								complete() {
+									uni.navigateBack({
+										delta:2
 									})
 								}
 							});

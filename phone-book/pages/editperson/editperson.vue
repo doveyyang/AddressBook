@@ -1,15 +1,15 @@
 <template>
 	<view>
 		<form>			
-			<view class="cu-form-group margin-top">
-			<view class="title">录入日期</view>
+			<!-- <view class="cu-form-group margin-top">
+				<view class="title">录入日期</view>
 				<picker mode="date" :value="date" start="2019-01-01" end="2020-01-01" @change="DateChange">
 					<view class="picker">
 						{{date}}
 					</view>
 				</picker>
-			</view>
-			<view class="cu-form-group ">
+			</view> -->
+			<view class="cu-form-group margin-top">
 				<view class="title">姓名</view>
 				<input placeholder="请填写姓名" name="input" v-model="name"></input>
 			</view>
@@ -51,7 +51,8 @@
 				</view>
 			</view>
 			<view class="btn-row">
-				<button type="primary" plain @click="submit"> 提交</button>
+				<button type="primary" plain @click="submit">提交修改</button>
+				<button type="warn"  @click="deleUser">删除用户</button>
 			</view>
 		</form>
 		
@@ -74,12 +75,12 @@
 				textareaAValue: '',
 				textareaBValue: '',
 				Id:'',
-				name:'李小龙',
-				phone:'15555555555',
-				company:'四川净入',
-				position:'销售经理',
-				headUrl:'123.png',
-				email:'1756@qq.com',
+				name:'',
+				phone:'',
+				company:'',
+				position:'',
+				headUrl:'',
+				email:'',
 				sort:'10',
 				
 				
@@ -118,9 +119,8 @@
 				
 				data.bid = this.Id;
 				
-				uni.showToast({
-					icon:"loading",
-					duration:1500
+				uni.showLoading({
+					
 				})
 				uni.request({
 					url:`${service.BASEURL}/Addressbook/getInfo`,
@@ -148,6 +148,9 @@
 							}
 						}
 					},
+					complete() {
+						uni.hideLoading()
+					}
 				})
 			},
 			submit(){
@@ -193,6 +196,55 @@
 									uni.navigateBack({
 										delta:1
 									})
+								}
+							});
+							
+						}
+					},
+				})
+			},
+			deleUser(){
+				let self = this;
+				if(!this.hasLogin) return;
+				let ndata = JSON.parse(this.info);
+				let data = {}
+				data.password = this.password;
+				data.id = ndata.id;
+				data.account = ndata.account;
+				data.token = ndata.token;
+								
+				data.bid = this.Id;
+				
+				uni.request({
+					url:`${service.BASEURL}/Addressbook/delbook`,
+					data: data,
+					method:'POST',
+					header:{
+						"content-type":"application/json"
+					},
+					success: (res) => {
+						if(res.data && res.data.code!=200){
+							uni.showToast({
+							    title: res.data.msg,
+								icon:'none'
+							});
+						}else{
+							uni.showToast({
+							    title: res.data.msg,
+								success() {
+									// uni.navigateTo({
+									// 	url:'../group/group?id='+self.Id
+									// })
+									uni.showToast({
+									    title: res.data.msg,
+										icon:'none',
+										complete() {
+											uni.navigateBack({
+												delta:1
+											})
+										}
+									});
+									
 								}
 							});
 							
@@ -265,6 +317,9 @@
 <style lang="scss">
 .btn-row{
 	padding: 20upx;
+	button{
+		margin: 10upx;
+	}
 }
 input{
 	text-align: right;

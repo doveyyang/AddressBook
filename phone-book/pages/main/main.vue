@@ -21,10 +21,10 @@
 						<text class="cuIcon-group_fill text-pink"></text>
 					</view>
 					<view class="content"  >
-						<view class="text-grey">{{item.name}}</view>
+						<view class="text-black">{{item.name}}</view>
 					</view>
 					<view class="action">
-						<view class="cu-tag round bg-grey sm">{{item.count}} </view>
+						<view class="cu-tag text-gray round  sm" v-if="item.nickname!='我'">{{item.nickname}} </view>
 					</view>
 					<view class="move">
 						<view class="bg-red" @click.stop="delgroup(item.id)">删除</view>
@@ -68,6 +68,9 @@
         computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
         onLoad() {
             if (!this.hasLogin) {
+				
+				
+				
                 uni.showModal({
                     title: '未登录',
                     content: '您未登录，需要登录后才能继续',
@@ -93,10 +96,14 @@
                     }
                 });
 				
-			}else{
-				this.initData()
 			}
+			// else{
+			// 	this.initData()
+			// }
         },
+		onShow() {
+			this.initData();
+		},
 		methods:{
 			initData(){
 				let self = this;
@@ -107,9 +114,7 @@
 				data.account = ndata.account;
 				data.token = ndata.token;
 				data.level = 0;
-				uni.showToast({
-					icon:'loading'					
-				})
+				uni.showLoading()
 				uni.request({
 					url:`${service.BASEURL}/Addressbook/index`,
 					data: data,
@@ -124,22 +129,36 @@
 								icon:'none'
 							});
 						}else{
-							debugger;
-							self.list = res.data.data.list;
+							 let list = [];
+							 if(res.data.data.list.group)
+							 {
+								list =  res.data.data.list.group
+							 }
 
-							for (let i = 0; i < self.list.length; i++) {
-								self.list[i].count = `${self.list[i].list.length}`;
+							// for (let i = 0; i < list.length; i++) {
+							// 	list[i].count = `${list[i].list.length}`;
+							// }
+							
+							if(res.data.data.share && res.data.data.share.group.length>0){
+								
+								list =list.concat(res.data.data.share.group);
+							}
+							if(list.length>0){
+								self.list = list;
 							}
 						}
 						
 					},
+					complete() {
+						uni.hideLoading()
+					}
 				})
 			},
 			showDetail(cid){
 				console.log(cid)
 				console.log('show detail')
 				 uni.navigateTo({
-				    url: `../group/group?id=${cid}`
+				    url: `../group/group?id=${cid}&level=${cid}`
 				});
 			},
 			addGroup(){

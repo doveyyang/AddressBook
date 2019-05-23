@@ -1,15 +1,15 @@
 <template>
 	<view>
 		<form>			
-			<view class="cu-form-group margin-top">
+		<!-- 	<view class="cu-form-group margin-top">
 				<view class="title">录入日期</view>
 				<picker mode="date" :value="date" start="2019-01-01" end="2020-01-01" @change="DateChange">
 					<view class="picker">
 						{{date}}
 					</view>
 				</picker>
-			</view>
-			<view class="cu-form-group ">
+			</view> -->
+			<view class="cu-form-group margin-top">
 				<view class="title">姓名</view>
 				<input placeholder="请填写姓名" name="input" v-model="name"></input>
 			</view>
@@ -74,12 +74,12 @@
 				textareaAValue: '',
 				textareaBValue: '',
 				pId:'',
-				name:'李小龙',
-				phone:'15555555555',
-				company:'四川净入',
-				position:'销售经理',
-				headUrl:'123.png',
-				email:'1756@qq.com',
+				name:'',
+				phone:'',
+				company:'',
+				position:'',
+				headUrl:'',
+				email:'',
 				sort:'10',
 				
 				
@@ -141,8 +141,11 @@
 							uni.showToast({
 							    title: res.data.msg,
 								success() {
-									uni.navigateTo({
-										url:'../group/group?id='+self.pId
+									// uni.navigateTo({
+									// 	url:`../group/group?id=${self.pId}&level=${self.pId}`
+									// })
+									uni.navigateBack({
+										delta:1
 									})
 								}
 							});

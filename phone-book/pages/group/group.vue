@@ -2,7 +2,7 @@
 	<view >
 		<cu-custom bgColor="bg-gradual-blue" :isBack="true">
 			<block slot="backText">返回</block>
-			<block slot="content">{{title}}</block>
+			<block slot="content"> 组分类</block>
 			<!-- <block slot="right">
 				<view class="right-box" @click="showModal" data-target="RadioModal">
 					编辑
@@ -44,10 +44,10 @@
 						<text class="cuIcon-group_fill text-pink"></text>
 					</view>
 					<view class="content"  >
-						<view class="text-grey">{{item.name}}</view>
+						<view class="text-black">{{item.name}}</view>
 					</view>
 					<view class="action">
-						<view class="cu-tag round bg-grey sm">{{item.count}} </view>
+						<view class="cu-tag round text-grey sm" v-if="item.nickname!='我'">{{item.count}} </view>
 					</view>
 					<view class="move">
 						<view class="bg-red" @click.stop="delgroup(item.id)">删除</view>
@@ -58,12 +58,12 @@
 			
 			<view class="cu-list menu-avatar">
 				<view class="cu-item" v-for="(person,index) in personList" :key = "index" @click="showDetail(person)">
-					<view class="cu-avatar round lg" :style="'background-image:url(//addressbook.jingru88.com/uploads/images/'+person.head_img+');'"></view>
+					<view class="cu-avatar round " :style="'background-image:url(//addressbook.jingru88.com/uploads/images/'+person.head_img+');'"></view>
 					<view class="content">
-						<view class="text-grey">{{person.name}}</view>
+						<view class="text-black">{{person.name}}</view>
 						<view class="text-gray text-sm flex">
 							<text class="text-cut">
-								<text class="cuIcon-infofill text-red  margin-right-xs"></text>
+								<!-- <text class="cuIcon-infofill text-red  margin-right-xs"></text> -->
 								{{person.company}} 
 							</text>
 						</view>
@@ -156,7 +156,7 @@ export default {
 					color: 'olive',
 					badge: 0,
 					name: '分享',
-					page: '/pages/addgroup/addgroup'
+					page: '/pages/sharegroup/sharegroup'
 				}
 			],
 			modalName: null,
@@ -164,7 +164,8 @@ export default {
 			gridBorder: false,
 			currentId:-1,
 			personList:[],
-			title:""
+			title:"",
+			level:0,
 		};
 	},
 	computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
@@ -183,65 +184,77 @@ export default {
 				url: '../main/main'
 			});
 		}else{
-			
 			this.currentId = option.id;
-			this.initData();
+			this.level = option.level;
+			// this.initData();
 		}
-		
-		
 	},
-	
+	onShow() {
+		this.initData();
+	},
 	methods: {
 		initData(){
 			
 			// 获取当前列表下的用户
 			let self = this;
-			if(!this.hasLogin) return;
+			// if(!this.hasLogin) return;
 			let ndata = JSON.parse(this.info);
-			let data = {}
-			data.password = this.password;
-			data.id = ndata.id;
-			data.account = ndata.account;
-			data.token = ndata.token;
-			data.level = 0;
-			uni.showToast({
-				icon:"loading",
-				duration:1500
-			})
-			uni.request({
-				url:`${service.BASEURL}/Addressbook/index`,
-				data: data,
-				method:'POST',
-				header:{
-					"content-type":"application/json"
-				},
-				success: (res) => {
-					if(res.data && res.data.code!=200){
-						uni.showToast({
-						    title: res.data.msg,
-							icon:'none'
-						});
-					}else{
-						let list = res.data.data.list;
-						
-						for (let i = 0; i < list.length; i++) {
-							if(list[i].id == self.currentId){
-								self.personList = list[i].list ;
-								console.log(list[i].name);
-								self.setTitle(list[i].name); 
-								break;
-							}
-							
-						}
-					}
-				},
-			})
+			// let data = {}
+			// data.password = this.password;
+			// data.id = ndata.id;
+			// data.account = ndata.account;
+			// data.token = ndata.token;
+			// data.level = this.level;
+			// uni.showLoading({
+			// })
+			// uni.request({
+			// 	url:`${service.BASEURL}/Addressbook/index`,
+			// 	data: data,
+			// 	method:'POST',
+			// 	header:{
+			// 		"content-type":"application/json"
+			// 	},
+			// 	success: (res) => {
+			// 		if(res.data && res.data.code!=200){
+			// 			uni.showToast({
+			// 			    title: res.data.msg,
+			// 				icon:'none'
+			// 			});
+			// 		}else{
+			// 			let list = [];
+			// 			if(res.data.data.list && res.data.data.list.length>0){
+			// 				list = list.concat(res.data.data.list) ;
+			// 			}
+			// 			if(res.data.data.share && res.data.data.share.length>0)
+			// 			{
+			// 				list = list.concat(res.data.data.share);
+			// 			}
+			// 			
+			// 			for (let i = 0; i < list.length; i++) {
+			// 				if(list[i].id == self.level){
+			// 					self.personList = list[i].list ;
+			// 					console.log(list[i].name);
+			// 					self.setTitle(list[i].name); 
+			// 					break;
+			// 				}
+			// 				
+			// 			}
+			// 		}
+			// 	},
+			// 	complete() {
+			// 		uni.hideLoading()
+			// 	}
+			// })
 			let data2 = {}
 			data2.password = this.password;
 			data2.id = ndata.id;
 			data2.account = ndata.account;
 			data2.token = ndata.token;
 			data2.level = this.currentId;
+			// debugger;
+			uni.showLoading({
+				
+			})
 			// 获取该组下的分组
 			uni.request({
 				url:`${service.BASEURL}/Addressbook/index`,
@@ -257,14 +270,29 @@ export default {
 							icon:'none'
 						});
 					}else{
-						// debugger;
-						self.list = res.data.data.share;
-						
-						for (let i = 0; i < self.list.length; i++) {
-							self.list[i].count = `${self.list[i].list.length}`;
+						let list = []
+						if(res.data.data && res.data.data.group && res.data.data.group.length>0){
+							self.list = res.data.data.group
 						}
+						// self.list = res.data.data.group;
+						
+						// for (let i = 0; i < self.list.length; i++) {
+						// 	self.list[i].count = `${self.list[i].list.length}`;
+						// }
+						if(res.data.data && res.data.data.list && res.data.data.list.length>0)
+						{
+							self.personList = res.data.data.list;
+						}
+						
+						// if(res.data.data.share && res.data.data.share.length>0){
+						// 	
+						// 	self.list =self.list.concat(res.data.data.share);
+						// }
 					}
 				},
+				complete() {
+					uni.hideLoading()
+				}
 			})
 		},
 		gotogroup(id) {
@@ -272,7 +300,7 @@ export default {
 			// 	url: `/pages/group/group?id=${id}`
 			// });
 			uni.navigateTo({
-				url:`/pages/group/group?id=${id}`
+				url:`/pages/group/group?id=${id}&level=${this.currentId}`
 			})
 		},
 		setTitle(name){
@@ -295,10 +323,11 @@ export default {
 					uni.navigateTo({
 						url:`../addgroup/addgroup?id=${this.currentId}&isEdit=true&name=${this.title}`
 					})
-					// this.showModal()
-					// uni.navigateTo({
-					// 	url:`${url}?id=${this.currentId}`
-					// })
+					break;
+				case '/pages/sharegroup/sharegroup':
+					uni.navigateTo({
+						url:`${url}?id=${this.currentId}&groupname=${this.title}`
+					})
 					break;
 				default:
 					break;
@@ -353,7 +382,7 @@ export default {
 			data2.token = ndata.token;
 			
 			data2.cid = this.currentId;
-			// 获取该组下的分组
+			// 删除分组
 			uni.request({
 				url:`${service.BASEURL}/Addbookcategory/delcate`,
 				data: data2,
@@ -374,6 +403,7 @@ export default {
 								// uni.navigateTo({
 								// 	url:'../group/group?id='+self.pId
 								// })
+								
 							}
 						});
 						

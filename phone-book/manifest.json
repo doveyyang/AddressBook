@@ -56,5 +56,15 @@
             "minified" : false
         },
         "usingComponents" : true
+    },
+    "h5" : {
+        "title" : "共享通讯录",
+        "devServer" : {
+            "https" : false
+        },
+        "router" : {
+            "base" : ""
+        },
+        "domain" : "addressbook.jingru88.com"
     }
 }
