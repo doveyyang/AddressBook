@@ -22,6 +22,10 @@ const store = new Vuex.Store({
         logout(state) {
             state.userName = "";
             state.hasLogin = false;
+			uni.setStorage({
+				key:'user_data',
+				data:''
+			})
         },
 		info(state,info){
 			state.info = info;

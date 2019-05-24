@@ -50,7 +50,8 @@
 	import uniListItem from '@/components/uni-list-item/uni-list-item.vue'
 	import service from '../../service.js'
     import {
-        mapState
+        mapState,
+		mapMutations
     } from 'vuex'
 
     export default {
@@ -68,34 +69,47 @@
         computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
         onLoad() {
             if (!this.hasLogin) {
-				
-				
-				
-                uni.showModal({
-                    title: '未登录',
-                    content: '您未登录，需要登录后才能继续',
-                    /**
-                     * 如果需要强制登录，不显示取消按钮
-                     */
-                    showCancel: !this.forcedLogin,
-                    success: (res) => {
-                        if (res.confirm) {
-							/**
-							 * 如果需要强制登录，使用reLaunch方式
-							 */
-                            if (this.forcedLogin) {
-                                uni.reLaunch({
-                                    url: '../login/login'
-                                });
-                            } else {
-                                uni.navigateTo({
-                                    url: '../login/login'
-                                });
-                            }
-                        }
-                    }
-                });
-				
+				// uni.setStorage({									
+				// 	user_data : user_data,
+				// })
+				// 如果没有登录，则判断是否缓存中是否有登录凭证
+				let hasUserData = uni.getStorageSync('user_data');
+				if(hasUserData){
+					//// 有则加载凭证，然后跳到上一页，
+					console.log('有用户信息',hasUserData)
+					
+					this.getStorageInfo(hasUserData);
+					// uni.navigateBack({
+					// 	delta:1
+					// })
+				}else{
+					// // 如果没有则则提醒登录
+					 uni.showModal({
+					    title: '未登录',
+					    content: '您未登录，需要登录后才能继续',
+					    /**
+					     * 如果需要强制登录，不显示取消按钮
+					     */
+					    showCancel: !this.forcedLogin,
+					    success: (res) => {
+					        if (res.confirm) {
+								/**
+								 * 如果需要强制登录，使用reLaunch方式
+								 */
+					            if (this.forcedLogin) {
+					                uni.reLaunch({
+					                    url: '../login/login'
+					                });
+					            } else {
+					                uni.navigateTo({
+					                    url: '../login/login'
+					                });
+					            }
+					        }
+					    }
+					});
+					
+				}
 			}
 			// else{
 			// 	this.initData()
@@ -105,9 +119,14 @@
 			this.initData();
 		},
 		methods:{
+			...mapMutations(['login']),
 			initData(){
 				let self = this;
+				if(!this.info){
+					return;
+				}
 				let ndata = JSON.parse(this.info);
+				
 				let data = {}
 				data.password = this.password;
 				data.id = ndata.id;
@@ -228,6 +247,13 @@
 					this.modalName = null
 				}
 				this.listTouchDirection = null
+			},
+			getStorageInfo(hasUserData){
+				let data = hasUserData
+				service.addUser(data.user);
+				this.$store.dispatch('SetInfo',JSON.stringify(data.info))
+				this.$store.dispatch('setPwd',data.user.password)
+				this.login(data.user.account)
 			}
 		}
 	}

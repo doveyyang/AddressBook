@@ -37,8 +37,8 @@
             return {
                 providerList: [],
                 hasProvider: false,
-                account: '110',
-                password: '123456',
+                account: '',
+                password: '',
                 positionTop: 0
             }
         },
@@ -79,6 +79,9 @@
                  * 客户端对账号信息进行一些必要的校验。
                  * 实际开发中，根据业务需要进行处理，这里仅做示例。
                  */
+				uni.showLoading({
+					
+				})
 				let self = this;
                 if (this.account.length < 3) {
                     uni.showToast({
@@ -121,6 +124,14 @@
 								icon:'none'
 							});
 						}else{
+							// uni.setStorage({
+							// 	key:'user-data',
+							// 	data:JSON.stringify(data)
+							// })
+							let user_data = {
+								user:data,
+								info:res.data.datas
+							}
 							
 							service.addUser(data);
 							const validUser = service.getUsers().some(function (user) {
@@ -130,6 +141,12 @@
 								this.$store.dispatch('SetInfo',JSON.stringify(res.data.datas))
 								this.$store.dispatch('setPwd',self.password)
 							    this.toMain(this.account);
+								uni.setStorage({									
+									// user_data : user_data,
+									key:'user_data',
+									data:user_data
+								})
+								
 							} else {
 							    uni.showToast({
 							        icon: 'none',
@@ -140,8 +157,10 @@
 						
 					},
 					fail(e) {
-						debugger;
 						console.log('fail',e)
+					},
+					complete() {
+						uni.hideLoading()
 					}
 				})
 				
