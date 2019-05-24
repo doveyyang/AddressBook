@@ -1,19 +1,11 @@
 <template>
 	<view>
-		<form>			
-			<!-- <view class="cu-form-group margin-top">
-				<view class="title">录入日期</view>
-				<picker mode="date" :value="date" start="2019-01-01" end="2020-01-01" @change="DateChange">
-					<view class="picker">
-						{{date}}
-					</view>
-				</picker>
-			</view> -->
+		<form> 
 			<view class="cu-form-group margin-top">
-				<view class="title">姓名</view>
+				<view class="title">我的昵称</view>
 				<input placeholder="请填写姓名" name="input" v-model="name"></input>
 			</view>
-			<view class="cu-form-group">
+			<!-- <view class="cu-form-group">
 				<view class="title">手机</view>
 				<input placeholder="请输入用户联系方式" name="input" v-model="phone"></input>
 			</view>
@@ -28,10 +20,10 @@
 			<view class="cu-form-group">
 				<view class="title">邮箱</view>
 				<input placeholder="请输入用户邮箱(选填)" name="input" v-model="email"></input>
-			</view>
+			</view> -->
 			<view class="cu-bar bg-white margin-top">
 				<view class="action">
-					用户头像
+					我的头像
 				</view>
 				<view class="action">
 					{{imgList.length}}/1
@@ -51,10 +43,7 @@
 				</view>
 			</view>
 			<view class="btn-row">
-				<button type="default" plain  @click="callUser">联系用户</button>
 				<button type="primary" plain @click="submit">提交修改</button>
-				<button type="warn"  @click="deleUser">删除用户</button>
-
 			</view>
 		</form>
 		
@@ -95,16 +84,9 @@
 					url: '../main/main'
 				});
 			}
-			if (!option.cid ) {
-				// 获取id失败，重新到某个页面
-				uni.reLaunch({
-					url: '../main/main'
-				});
-			}else{
-				
-				this.Id = option.cid;
-				this.initdata();
-			}
+			
+			this.initdata();
+			
 		},
 		computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
 		methods:{
@@ -119,13 +101,13 @@
 				data.account = ndata.account;
 				data.token = ndata.token;
 				
-				data.bid = this.Id;
+				// data.bid = this.Id;
 				
 				uni.showLoading({
 					
 				})
 				uni.request({
-					url:`${service.BASEURL}/Addressbook/getInfo`,
+					url:`${service.BASEURL}/User/My`,
 					data: data,
 					method:'POST',
 					header:{
@@ -138,12 +120,14 @@
 								icon:'none'
 							});
 						}else{
+							// self.name = res.data.data.nickname;
+							// self.headUrl = `${res.data.data.head_img}`;
 							let record = res.data.data;
-							self.name =  record.name;
-							self.phone = record.mobile;
-							self.company = record.company;
-							self.email = record.email;
-							self.position = record.position;
+							self.name =  record.nickname;
+							// self.phone = record.mobile;
+							// self.company = record.company;
+							// self.email = record.email;
+							// self.position = record.position;
 							self.headUrl = record.head_img;
 							if(record.head_img){
 								self.imgList.push( service.BASEIMGURL+record.head_img)
@@ -165,18 +149,12 @@
 				data.account = ndata.account;
 				data.token = ndata.token;
 				
-				data.name = this.name;
-				data.mobile = this.phone;
-				data.company  = this.company;
-				data.email = this.email;
-				data.position = this.position;
-				data.sort = this.sort;
-				// data.team = this.pId;
+				data.nickname = this.name;
+				
 				data.head_img = this.headUrl;
-				data.bid = this.Id;
 				
 				uni.request({
-					url:`${service.BASEURL}/Addressbook/edit_info`,
+					url:`${service.BASEURL}/User/edituserinfo`,
 					data: data,
 					method:'POST',
 					header:{
@@ -252,12 +230,6 @@
 							
 						}
 					},
-				})
-			},
-			callUser(){
-				console.log('phone call')
-				uni.makePhoneCall({
-					phoneNumber:this.phone
 				})
 			},
 			PickerChange(e) {

@@ -64,6 +64,18 @@
 				"navigationBarTitleText":"添加主分组"
 			}
         }
+        ,{
+            "path" : "pages/edituser/edituser",
+            "style" : {
+				"navigationBarTitleText":"资料编辑"
+			}
+        }
+        ,{
+            "path" : "pages/changePwd/changePwd",
+            "style" : {
+				"navigationBarTitleText":"修改密码"
+			}
+        }
     ],
     "tabBar": {
         "color": "#7a7e83",
