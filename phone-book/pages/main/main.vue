@@ -14,7 +14,7 @@
 					<uni-list-item title="禁用状态" disabled="true" show-badge="true" badge-text="12"></uni-list-item>
 				</uni-list>
 			</view> -->
-			<view class="cu-list menu-avatar">
+			<view class="cu-list menu-avatar table-list">
 				<view class="cu-item group-item" :class="modalName=='move-box-'+ index?'move-cur':''" v-for="(item,index) in list" :key="index"
 				 @touchstart="ListTouchStart" @touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index" @click="showDetail(item.id)">
 					<view class=" cu-avatar round sm">
@@ -261,18 +261,21 @@
 
 <style>
 	.content{
-		position: relative;
+		/* position: relative; */
 	}
 	.action-row{
-		position: fixed;
-		bottom: 100upx;
-		width: 90%;
+		/* position: fixed; */
+		
+		/* bottom: 100upx; */
+		/* width: 90%; */
+		margin: 20upx;
+		padding: 20upx;
 		/* text-align: center; */
 		/* margin: 0 auto; */
 		/* box-sizing: border-box; */
-		left: 50%;
+		/* left: 50%; */
 		/* top: 50%; */
-		transform: translate(-50%, -50%);
+		/* transform: translate(-50%, -50%); */
 	}
 	.list-view{
 		margin: 20upx 0;
@@ -307,4 +310,7 @@
 	.cu-list.menu-avatar>.cu-item{
 		height: 100upx;
 	}
+	/* .table-list{
+		margin-bottom: 200upx;
+	} */
 </style>
