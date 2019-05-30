@@ -1,0 +1,28 @@
+.nav-list {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  background-color: #fff;
+}
+.nav-list .nav-item {
+    line-height: 80rpx;
+    display: inline-block;
+    padding: 0 10rpx;
+    color: royalblue;
+}
+.nav-list .nav-item:last-child {
+    color: #ccc;
+}
+.nav-list .nav-item:before {
+    content: '>';
+    color: #ccc;
+    margin-right: 20rpx;
+}
+.nav-list .main:before {
+    content: '';
+}
+.scroll-view-item_H {
+  white-space: nowrap;
+}
+

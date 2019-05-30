@@ -2,7 +2,7 @@
 	<view >
 		<cu-custom bgColor="bg-gradual-blue" :isBack="true">
 			<block slot="backText">返回</block>
-			<block slot="content"> 组分类</block>
+			<block slot="content"> {{groupName}}</block>
 			<!-- <block slot="right">
 				<view class="right-box" @click="showModal" data-target="RadioModal">
 					编辑
@@ -19,6 +19,10 @@
 					</view>
 					<text>{{ item.name }}</text>
 				</view>
+			</view>
+			
+			<view class="margin-top">
+				<doveyNav :navlist="navList"   />
 			</view>
 
 			<!-- <view class="cu-list menu margin-top" :class="[menuBorder ? 'sm-border' : '', menuCard ? 'card-menu margin-top' : '']">
@@ -47,7 +51,7 @@
 						<view class="text-black">{{item.name}}</view>
 					</view>
 					<view class="action">
-						<view class="cu-tag round text-grey sm" v-if="item.nickname!='我'">{{item.count}} </view>
+						<!-- <view class="cu-tag round text-grey sm" v-if="item.nickname!='我'">{{item.count}} </view> -->
 					</view>
 					<view class="move">
 						<view class="bg-red" @click.stop="delgroup(item.id)">删除</view>
@@ -60,7 +64,7 @@
 				<view class="cu-item" v-for="(person,index) in personList" :key = "index" @click="showDetail(person)">
 					<view class="cu-avatar round " :style="'background-image:url(//addressbook.jingru88.com/uploads/images/'+person.head_img+');'"></view>
 					<view class="content">
-						<view class="text-black">{{person.name}}</view>
+						<view class="text-black">{{person.nickname}}</view>
 						<view class="text-gray text-sm flex">
 							<text class="text-cut">
 								<!-- <text class="cuIcon-infofill text-red  margin-right-xs"></text> -->
@@ -77,22 +81,15 @@
 					未添加好友
 				</view>
 			</view>
-			
-			<!-- 编辑选择窗口 -->
-			<!-- <view class="cu-bar bg-white margin-top">
-				<view class="action">
-					<text class="cuIcon-title text-orange "></text> 编辑分组
-				</view>
-				<view class="action">
-					<button class="cu-btn bg-green shadow" @tap="showModal" data-target="RadioModal">分组</button>
-				</view>
-			</view> -->
+						
 			<view class="cu-modal" :class="modalName=='RadioModal'?'show':''" @tap="hideModal">
 				<view class="cu-dialog btn-dlg" @tap.stop="">
 					<button type="primary" @click="editgroup" >编辑分组</button>
 					<button type="warn" @click="deletegroup" data-target="DialogModal1" >删除分组</button>
 				</view>
 			</view>
+			
+			
 		
 			<view class="cu-modal" :class="modalName=='DialogModal1'?'show':''">
 				<view class="cu-dialog">
@@ -122,6 +119,7 @@
 import { mapState,
 	    mapMutations } from 'vuex';
 import service from '../../service.js'
+import doveyNav from '../../components/dovey-nav.vue'
 export default {
 	data() {
 		return {
@@ -151,22 +149,30 @@ export default {
 					name: '编辑',
 					page: 'edit'
 				},
-				{
-					icon: 'share',
-					color: 'olive',
-					badge: 0,
-					name: '分享',
-					page: '/pages/sharegroup/sharegroup'
-				}
+				// {
+				// 	icon: 'share',
+				// 	color: 'olive',
+				// 	badge: 0,
+				// 	name: '分享',
+				// 	page: '/pages/sharegroup/sharegroup'
+				// }
 			],
 			modalName: null,
-			gridCol: 4,
+			gridCol: 3,
 			gridBorder: false,
 			currentId:-1,
 			personList:[],
 			title:"",
 			level:0,
+			navList:[{
+				name:'主列表',
+				id:0,
+			}],
+			groupName:'组分类'
 		};
+	},
+	components:{
+		doveyNav,
 	},
 	computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
 	onLoad(option) {
@@ -189,7 +195,7 @@ export default {
 			// this.initData();
 		}
 	},
-	onShow() {
+	onShow() { 
 		this.initData();
 	},
 	methods: {
@@ -197,67 +203,17 @@ export default {
 			
 			// 获取当前列表下的用户
 			let self = this;
-			// if(!this.hasLogin) return;
 			let ndata = JSON.parse(this.info);
-			// let data = {}
-			// data.password = this.password;
-			// data.id = ndata.id;
-			// data.account = ndata.account;
-			// data.token = ndata.token;
-			// data.level = this.level;
-			// uni.showLoading({
-			// })
-			// uni.request({
-			// 	url:`${service.BASEURL}/Addressbook/index`,
-			// 	data: data,
-			// 	method:'POST',
-			// 	header:{
-			// 		"content-type":"application/json"
-			// 	},
-			// 	success: (res) => {
-			// 		if(res.data && res.data.code!=200){
-			// 			uni.showToast({
-			// 			    title: res.data.msg,
-			// 				icon:'none'
-			// 			});
-			// 		}else{
-			// 			let list = [];
-			// 			if(res.data.data.list && res.data.data.list.length>0){
-			// 				list = list.concat(res.data.data.list) ;
-			// 			}
-			// 			if(res.data.data.share && res.data.data.share.length>0)
-			// 			{
-			// 				list = list.concat(res.data.data.share);
-			// 			}
-			// 			
-			// 			for (let i = 0; i < list.length; i++) {
-			// 				if(list[i].id == self.level){
-			// 					self.personList = list[i].list ;
-			// 					console.log(list[i].name);
-			// 					self.setTitle(list[i].name); 
-			// 					break;
-			// 				}
-			// 				
-			// 			}
-			// 		}
-			// 	},
-			// 	complete() {
-			// 		uni.hideLoading()
-			// 	}
-			// })
 			let data2 = {}
 			data2.password = this.password;
 			data2.id = ndata.id;
 			data2.account = ndata.account;
 			data2.token = ndata.token;
 			data2.level = this.currentId;
-			// debugger;
-			uni.showLoading({
-				
-			})
+			uni.showLoading({})
 			// 获取该组下的分组
 			uni.request({
-				url:`${service.BASEURL}/Addressbook/index`,
+				url:`${service.BASEURL}/Addressbook/indexlist`,
 				data: data2,
 				method:'POST',
 				header:{
@@ -274,20 +230,12 @@ export default {
 						if(res.data.data && res.data.data.group && res.data.data.group.length>0){
 							self.list = res.data.data.group
 						}
-						// self.list = res.data.data.group;
-						
-						// for (let i = 0; i < self.list.length; i++) {
-						// 	self.list[i].count = `${self.list[i].list.length}`;
-						// }
 						if(res.data.data && res.data.data.list && res.data.data.list.length>0)
 						{
 							self.personList = res.data.data.list;
 						}
-						
-						// if(res.data.data.share && res.data.data.share.length>0){
-						// 	
-						// 	self.list =self.list.concat(res.data.data.share);
-						// }
+						// navList
+						self.updateNavList();
 					}
 				},
 				complete() {
@@ -296,9 +244,6 @@ export default {
 			})
 		},
 		gotogroup(id) {
-			// uni.redirectTo({
-			// 	url: `/pages/group/group?id=${id}`
-			// });
 			uni.navigateTo({
 				url:`/pages/group/group?id=${id}&level=${this.currentId}`
 			})
@@ -335,8 +280,37 @@ export default {
 			
 		},
 		showModal(e) {
-			// debugger;
 			this.modalName = "RadioModal";//e.currentTarget.dataset.target
+		},
+		updateNavList(){
+			let self = this;
+			
+			let oriArr = uni.getStorageSync('groupList');
+			console.log(oriArr)
+			let id = this.currentId;
+			let mlist = [];
+			if(oriArr){
+				do{
+					for (let index = 0; index < oriArr.length; index++) {
+						const element = oriArr[index];
+						if(element.id==id){
+							mlist.push(element);
+							id = element.pid;
+							break;
+						}
+						if(index==oriArr.length) id=-1;
+					}
+					
+				}while(id>0);
+				// console.log(mlist.reverse());
+				let list = [{
+					name:'主列表',
+					id:0,
+				}];
+				this.navList = list.concat(mlist.reverse());
+				this.groupName = this.navList[this.navList.length-1].name;
+			}
+			
 		},
 		hideModal(e) {
 			this.modalName = null

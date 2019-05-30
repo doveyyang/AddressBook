@@ -37,8 +37,8 @@
             return {
                 providerList: [],
                 hasProvider: false,
-                account: '',
-                password: '',
+                account: '13122181695',
+                password: '88888888',
                 positionTop: 0
             }
         },
@@ -132,6 +132,7 @@
 								user:data,
 								info:res.data.datas
 							}
+							user_data.info.account = self.account;
 							
 							service.addUser(data);
 							const validUser = service.getUsers().some(function (user) {

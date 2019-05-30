@@ -8,13 +8,16 @@
 			<view class="action-row">
 				<button type="primary" plain @click='addGroup' >添加分组</button>					
 			</view>
-			<!-- <view class="list-view">				
+			
+			<view >
+				<doveyNav :navlist="navList" @gogroup="showDetail" />
+			</view>
+			<view class="list-view">				
 				<uni-list>
 					<uni-list-item @click="showDetail(item.id)" v-for="(item,index) in list" :title="item.name" :key="index" show-badge="true" :badge-text="item.count"></uni-list-item>
-					<uni-list-item title="禁用状态" disabled="true" show-badge="true" badge-text="12"></uni-list-item>
 				</uni-list>
-			</view> -->
-			<view class="cu-list menu-avatar table-list">
+			</view>
+			<!-- <view class="cu-list menu-avatar table-list">
 				<view class="cu-item group-item" :class="modalName=='move-box-'+ index?'move-cur':''" v-for="(item,index) in list" :key="index"
 				 @touchstart="ListTouchStart" @touchmove="ListTouchMove" @touchend="ListTouchEnd" :data-target="'move-box-' + index" @click="showDetail(item.id)">
 					<view class=" cu-avatar round sm">
@@ -30,7 +33,11 @@
 						<view class="bg-red" @click.stop="delgroup(item.id)">删除</view>
 					</view>
 				</view>
-			</view>
+			</view> -->
+			<!-- <view class="">
+				<mix-tree :list="list" @treeItemClick="treeItemClick"></mix-tree>
+			</view> -->
+			
 				
         </view>
         <view v-if="!hasLogin" class="hello">
@@ -49,6 +56,9 @@
 	import uniList from '@/components/uni-list/uni-list.vue'
 	import uniListItem from '@/components/uni-list-item/uni-list-item.vue'
 	import service from '../../service.js'
+	import formateData from '../../common/formatedata.js'
+	import mixTree from '@/components/mix-tree/mix-tree'
+	import doveyNav from '../../components/dovey-nav.vue'
     import {
         mapState,
 		mapMutations
@@ -61,27 +71,25 @@
 				modalName: null,
 				listTouchStart: 0,
 				listTouchDirection: null,
+				navList:[{
+					name:'主列表',
+					id:0,
+				}]
 			}
 		},
 		components:{
-			uniList,uniListItem
+			uniList,uniListItem,mixTree,doveyNav
 		},
         computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
         onLoad() {
-            if (!this.hasLogin) {
-				// uni.setStorage({									
-				// 	user_data : user_data,
-				// })
+            if (!this.hasLogin) { 
 				// 如果没有登录，则判断是否缓存中是否有登录凭证
 				let hasUserData = uni.getStorageSync('user_data');
 				if(hasUserData){
 					//// 有则加载凭证，然后跳到上一页，
 					console.log('有用户信息',hasUserData)
 					
-					this.getStorageInfo(hasUserData);
-					// uni.navigateBack({
-					// 	delta:1
-					// })
+					this.getStorageInfo(hasUserData); 
 				}else{
 					// // 如果没有则则提醒登录
 					 uni.showModal({
@@ -120,6 +128,9 @@
 		},
 		methods:{
 			...mapMutations(['login']),
+			scroll(){
+				console.log('scroll')
+			},
 			initData(){
 				let self = this;
 				if(!this.info){
@@ -132,10 +143,10 @@
 				data.id = ndata.id;
 				data.account = ndata.account;
 				data.token = ndata.token;
-				data.level = 0;
+				
 				uni.showLoading()
 				uni.request({
-					url:`${service.BASEURL}/Addressbook/index`,
+					url:`${service.BASEURL}/Addbookcategory/index`,
 					data: data,
 					method:'POST',
 					header:{
@@ -148,25 +159,21 @@
 								icon:'none'
 							});
 						}else{
-							 let list = [];
-							 if(res.data.data.list.group)
+							let list = [];
+							 if(res.data.data)
 							 {
-								list =  res.data.data.list.group
-							 }
-
-							// for (let i = 0; i < list.length; i++) {
-							// 	list[i].count = `${list[i].list.length}`;
-							// }
-							
-							if(res.data.data.share && res.data.data.share.group.length>0){
+								  uni.setStorage({
+								 	 key:'groupList',
+								 	 data:res.data.data
+								 })
+								list =  res.data.data.filter(x=>x.pid==0);
 								
-								list =list.concat(res.data.data.share.group);
-							}
+							 }
+							
 							if(list.length>0){
 								self.list = list;
-							}
-						}
-						
+							}							
+						}						
 					},
 					complete() {
 						uni.hideLoading()
@@ -185,6 +192,9 @@
 				uni.navigateTo({
 					url:"../addmaingroup/addmaingroup"
 				})
+			},
+			formateOriData(data){
+				return formateData(data);
 			},
 			// ListTouch触摸开始
 			delgroup(id){
@@ -254,32 +264,35 @@
 				this.$store.dispatch('SetInfo',JSON.stringify(data.info))
 				this.$store.dispatch('setPwd',data.user.password)
 				this.login(data.user.account)
+			},
+			treeItemClick(item) {
+				let self = this;
+				let {
+					id,
+					name,
+					parentId
+				} = item;
+				uni.showModal({
+					content: `点击了${parentId.length+1}级菜单, ${name}, id为${id}, 父id为${parentId.toString()}`,
+					success(){
+						self.showDetail(id)
+					}
+				})
+				console.log(item)
 			}
 		}
 	}
 </script>
 
-<style>
+<style lang="scss" scoped>
 	.content{
-		/* position: relative; */
 	}
 	.action-row{
-		/* position: fixed; */
-		
-		/* bottom: 100upx; */
-		/* width: 90%; */
 		margin: 20upx;
 		padding: 20upx;
-		/* text-align: center; */
-		/* margin: 0 auto; */
-		/* box-sizing: border-box; */
-		/* left: 50%; */
-		/* top: 50%; */
-		/* transform: translate(-50%, -50%); */
 	}
 	.list-view{
 		margin: 20upx 0;
-		/* background-color: #8F8F94; */
 	}
 	
 	
@@ -310,7 +323,24 @@
 	.cu-list.menu-avatar>.cu-item{
 		height: 100upx;
 	}
-	/* .table-list{
-		margin-bottom: 200upx;
-	} */
+	.nav-list{
+		background-color: pink;
+		display: flex;
+		.nav-item{
+			line-height: 80upx;
+			border: 1upx solid purple;
+			display: inline-block;
+			padding: 0 10upx;
+		}
+		.nav-item:before{
+			content: '>';
+			color: #999;
+		}
+		.main:before{
+			content: ''
+		}
+	}
+	.scroll-view-item_H{
+		white-space: nowrap;
+	}
 </style>

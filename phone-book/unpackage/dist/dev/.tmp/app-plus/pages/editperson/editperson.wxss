@@ -1,0 +1,11 @@
+.btn-row {
+  padding: 20rpx;
+}
+.btn-row button {
+    margin: 10rpx;
+}
+input {
+  text-align: right;
+  color: #999;
+}
+

@@ -139,7 +139,7 @@
 							});
 						}else{
 							let record = res.data.data;
-							self.name =  record.name;
+							self.name =  record.nickname;
 							self.phone = record.mobile;
 							self.company = record.company;
 							self.email = record.email;

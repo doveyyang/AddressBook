@@ -1,0 +1,8 @@
+.btn-row {
+  padding: 20rpx;
+}
+input {
+  text-align: right;
+  color: #999;
+}
+

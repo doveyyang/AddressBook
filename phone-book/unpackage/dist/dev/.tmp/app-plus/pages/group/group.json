@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "组分类",
+  "usingComponents": {
+    "cu-custom": "/colorui/components/cu-custom",
+    "dovey-nav": "/components/dovey-nav"
+  }
+}

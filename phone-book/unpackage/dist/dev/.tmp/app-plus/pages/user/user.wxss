@@ -1,0 +1,48 @@
+.content .btn-row.data-v-11038afa {
+  padding: 20rpx;
+}
+.content .btn-row button.data-v-11038afa {
+    margin: 20rpx;
+}
+.content .avertar-box.data-v-11038afa {
+  background: url("/static/img/mine/bg.jpg") no-repeat center;
+  background-size: 100% 100%;
+  height: 576rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  width: 100%;
+  color: #FFFFFF;
+}
+.content .avertar-box .info-box.data-v-11038afa {
+    margin: auto;
+}
+.content .avertar-box .info-box .avatar-info.data-v-11038afa {
+      margin-top: -50rpx;
+      font-size: 32rpx;
+}
+.content .avertar-box .info-box .avatar-info .avatar.data-v-11038afa {
+        margin: auto;
+        display: block;
+        padding: 0 auto;
+}
+.content .avertar-box .info-box .avatar-info .username.data-v-11038afa {
+        line-height: 70rpx;
+        text-indent: 0.5em;
+        font-weight: 700;
+        text-align: center;
+}
+.content .avertar-box .info-box .avatar-info .username .msex.data-v-11038afa {
+          margin-left: 20rpx;
+          color: #FF29FF;
+          display: inline;
+}
+.content .avertar-box .info-box .avatar-info .phone.data-v-11038afa {
+        font-size: 28rpx;
+        text-align: center;
+}
+.content .avertar-box .info-box .avatar-info .phone .picon.data-v-11038afa {
+          font-size: 24rpx;
+}
+
