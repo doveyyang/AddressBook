@@ -50,14 +50,65 @@
 					</view>
 				</view>
 			</view>
-			<view class="btn-row">
-				<button type="default" plain  @click="callUser">联系用户</button>
-				<button type="primary" plain @click="submit">提交修改</button>
-				<button type="warn"  @click="deleUser">删除用户</button>
-
+			<view class="margin-top remark-list">
+				<view class="item flex padding-sm " v-for="(item,index) in list" :key="index">
+					<view class="left flex flex-direction flex-treble">
+						<view class="text-black">
+							{{item.uid}}
+						</view>
+						<view class="text-gray padding-sm">
+							{{item.remarks}}
+						</view>
+					</view>
+					<view class="right margin-top">
+						<view class="margin-top">
+							<button class="cu-btn round sm bg-blue" >修改</button>
+						</view>
+						<view class="margin-top">
+							<button class="cu-btn round sm bg-red" @click="deleteRemark(item.id)">删除</button>
+						</view>
+					</view>
+				</view>
 			</view>
+			<view class="btn-row">
+				<button type="default" size="mini" plain  @click="callUser">联系用户</button>
+				<button type="primary" size="mini" plain @click="submit">提交修改</button>				
+				<button type="default" size="mini"  plain @tap="showModal" data-target="addMarkModal">添加备注</button>
+				<button type="warn" size="mini"  @click="deleUser">删除用户</button>
+			</view>
+			
+				
+			
 		</form>
 		
+		<!-- <view class="cu-bar bg-white margin-top">
+			<view class="action">
+				<text class="cuIcon-title text-orange "></text> 普通窗口
+			</view>
+			<view class="action">
+				<button class="cu-btn bg-green shadow" @tap="showModal" data-target="Modal">Modal</button>
+			</view>
+		</view> -->
+		<view class="cu-modal" :class="modalName=='addMarkModal'?'show':''">
+			<view class="cu-dialog">
+				<view class="cu-bar bg-white justify-end">
+					<view class="content">添加备注</view>
+					<view class="action" @tap="hideModal">
+						<text class="cuIcon-close text-red"></text>
+					</view>
+				</view>
+				<view class="padding-xl">
+					<textarea maxlength="-1"  v-model="textareaBInput" placeholder="请输入备注"></textarea>
+				</view>
+				<view class="cu-bar bg-white justify-end">
+					<view class="action">
+						<button class="cu-btn line-green text-green" @tap="hideModal">取消</button>
+						<button class="cu-btn bg-green margin-left" @tap="addMark">确定</button>
+				
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -84,8 +135,8 @@
 				headUrl:'',
 				email:'',
 				sort:'10',
-				
-				
+				list:[],
+				textareaBInput:''
 			};
 		},
 		onLoad(option) {
@@ -104,10 +155,15 @@
 				
 				this.Id = option.cid;
 				this.initdata();
+				this.initremarks();
+				
 			}
 		},
 		computed: mapState(['forcedLogin', 'hasLogin', 'userName','info','password']),
 		methods:{
+			delremark(){
+				console.log('delete remark')
+			},
 			initdata(){
 				// 获取当前列表下的用户
 				let self = this;
@@ -146,9 +202,55 @@
 							self.position = record.position;
 							self.headUrl = record.head_img;
 							if(record.head_img){
-								self.imgList.push( service.BASEIMGURL+record.head_img)
+								self.imgList = [];
+								let ilist = [];
+								ilist.push( service.BASEIMGURL+record.head_img)
+								self.imgList = ilist;
 							}
 						}
+					},
+					complete() {
+						uni.hideLoading()
+					}
+				})
+			},
+			initremarks(){
+				// 
+				let self = this;
+				if(!this.hasLogin) return;
+				let ndata = JSON.parse(this.info);
+				let data = {}
+				data.password = this.password;
+				data.id = ndata.id;
+				data.account = ndata.account;
+				data.token = ndata.token;
+				
+				data.personid = this.Id;
+				
+				uni.showLoading({
+					
+				})
+				uni.request({
+					url:`${service.BASEURL}/Addressbook/remarks`,
+					data: data,
+					method:'POST',
+					header:{
+						"content-type":"application/json"
+					},
+					success: (res) => {
+						
+							self.list = res.data.list;
+							// let record = res.data.data;
+							// self.name =  record.nickname;
+							// self.phone = record.phone;
+							// self.company = record.company;
+							// self.email = record.email;
+							// self.position = record.position;
+							// self.headUrl = record.head_img;
+							// if(record.head_img){
+							// 	self.imgList.push( service.BASEIMGURL+record.head_img)
+							// }
+						
 					},
 					complete() {
 						uni.hideLoading()
@@ -263,6 +365,12 @@
 			PickerChange(e) {
 				this.index = e.detail.value
 			},
+			showModal(e) {
+				this.modalName = e.currentTarget.dataset.target
+			},
+			hideModal(e) {
+				this.modalName = null
+			},
 			DateChange(e) {
 				this.date = e.detail.value
 			},
@@ -318,6 +426,105 @@
 						}
 					}
 				})
+			},
+			ListTouchStart(e) {
+				this.listTouchStart = e.touches[0].pageX
+			},
+			
+			// ListTouch计算方向
+			ListTouchMove(e) {
+				this.listTouchDirection = e.touches[0].pageX - this.listTouchStart > 0 ? 'right' : 'left'
+			},
+			
+			// ListTouch计算滚动
+			ListTouchEnd(e) {
+				if (this.listTouchDirection == 'left') {
+					this.modalName = e.currentTarget.dataset.target
+				} else {
+					this.modalName = null
+				}
+				this.listTouchDirection = null
+			},
+			// 添加备注
+			addMark(){
+				console.log('addmark',this.textareaBInput)
+				this.hideModal();
+				let self = this;
+				if(!this.hasLogin) return;
+				let ndata = JSON.parse(this.info);
+				let data = {}
+				data.password = this.password;
+				data.id = ndata.id;
+				data.account = ndata.account;
+				data.token = ndata.token;
+				// debugger;
+				data.personid = this.Id;
+				data.remarks = this.textareaBInput;
+				
+				uni.showLoading({
+					
+				})
+				uni.request({
+					url:`${service.BASEURL}/Addressbook/addremarks`,
+					data: data,
+					method:'POST',
+					header:{
+						"content-type":"application/json"
+					},
+					success: (res) => {
+						if(!res.data || res.data.code!=200){
+							uni.showToast({
+							    title: res.data.msg,
+								icon:'none'
+							});
+						}else{
+							self.initdata();
+							self.initremarks();
+						}
+					},
+					complete() {
+						uni.hideLoading()
+					}
+				})
+			},
+			deleteRemark(id){
+				// console.log('deleteRemark',this.textareaBInput)
+				let self = this;
+				if(!this.hasLogin) return;
+				let ndata = JSON.parse(this.info);
+				let data = {}
+				data.password = this.password;
+				data.id = ndata.id;
+				data.account = ndata.account;
+				data.token = ndata.token;
+				// debugger;
+				data.remark_id = id;
+				
+				uni.showLoading({
+					
+				})
+				uni.request({
+					url:`${service.BASEURL}/Addressbook/delonce`,
+					data: data,
+					method:'POST',
+					header:{
+						"content-type":"application/json"
+					},
+					success: (res) => {
+						if(res.data && res.data.code!=200){
+							uni.showToast({
+							    title: res.data.msg,
+								icon:'none'
+							});
+						}else{
+							self.initdata();
+							self.initremarks();
+						}
+					},
+					complete() {
+						uni.hideLoading()
+					}
+				})
 			}
 		}
 	}
@@ -334,4 +541,12 @@ input{
 	text-align: right;
 	color: #999;
 }
+.remark-list{
+	border-top: 1upx solid #999;	
+	.item{
+		border-bottom: 1upx solid #999;
+		background-color: #fff;
+	}
+}
+
 </style>
