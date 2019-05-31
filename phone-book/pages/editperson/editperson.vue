@@ -140,7 +140,7 @@
 						}else{
 							let record = res.data.data;
 							self.name =  record.nickname;
-							self.phone = record.mobile;
+							self.phone = record.phone;
 							self.company = record.company;
 							self.email = record.email;
 							self.position = record.position;
@@ -314,6 +314,7 @@
 					success: res => {
 						if (res.confirm) {
 							this.imgList.splice(e.currentTarget.dataset.index, 1)
+							this.headUrl = '';
 						}
 					}
 				})
