@@ -50,7 +50,10 @@
 					</view>
 				</view>
 			</view>
-			<view class="margin-top remark-list">
+			<view class="margin-top remark-list margin-top">
+				<view class="padding-sm bg-white">
+					用户备注
+				</view>
 				<view class="item flex padding-sm " v-for="(item,index) in list" :key="index">
 					<view class="left flex flex-direction flex-treble">
 						<view class="text-black">
@@ -62,7 +65,7 @@
 					</view>
 					<view class="right margin-top">
 						<view class="margin-top">
-							<button class="cu-btn round sm bg-blue" >修改</button>
+							<button class="cu-btn round sm bg-blue" @tap="editRemarkBox(item.id,item.remarks)" data-target="editMarkModal" >修改</button>
 						</view>
 						<view class="margin-top">
 							<button class="cu-btn round sm bg-red" @click="deleteRemark(item.id)">删除</button>
@@ -109,6 +112,26 @@
 				</view>
 			</view>
 		</view>
+		<view class="cu-modal" :class="modalName=='editMarkModal'?'show':''">
+			<view class="cu-dialog">
+				<view class="cu-bar bg-white justify-end">
+					<view class="content">编辑备注</view>
+					<view class="action" @tap="hideModal">
+						<text class="cuIcon-close text-red"></text>
+					</view>
+				</view>
+				<view class="padding-xl">
+					<textarea maxlength="-1"  v-model="textareaBInput" placeholder="请输入备注"></textarea>
+				</view>
+				<view class="cu-bar bg-white justify-end">
+					<view class="action">
+						<button class="cu-btn line-green text-green" @tap="hideModal">取消</button>
+						<button class="cu-btn bg-green margin-left" @click="editRemark">确定</button>
+				
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -136,7 +159,8 @@
 				email:'',
 				sort:'10',
 				list:[],
-				textareaBInput:''
+				textareaBInput:'',
+				editId:'',
 			};
 		},
 		onLoad(option) {
@@ -165,6 +189,7 @@
 				console.log('delete remark')
 			},
 			initdata(){
+				console.log('initdata')
 				// 获取当前列表下的用户
 				let self = this;
 				if(!this.hasLogin) return;
@@ -215,7 +240,7 @@
 				})
 			},
 			initremarks(){
-				// 
+				console.log('initremarks')
 				let self = this;
 				if(!this.hasLogin) return;
 				let ndata = JSON.parse(this.info);
@@ -238,7 +263,6 @@
 						"content-type":"application/json"
 					},
 					success: (res) => {
-						
 							self.list = res.data.list;
 							// let record = res.data.data;
 							// self.name =  record.nickname;
@@ -480,12 +504,63 @@
 						}else{
 							self.initdata();
 							self.initremarks();
+							self.textareaBInput = '';
 						}
 					},
 					complete() {
 						uni.hideLoading()
 					}
 				})
+			},
+			editRemarkBox(id,remarks){
+				this.editId  =id,
+				this.textareaBInput = remarks;
+				this.modalName = 'editMarkModal'
+			},
+			editRemark(){
+				// this.textareaBInput = remarks;
+				
+				let self = this;
+				if(!this.hasLogin) return;
+				let ndata = JSON.parse(this.info);
+				let data = {}
+				data.password = this.password;
+				data.id = ndata.id;
+				data.account = ndata.account;
+				data.token = ndata.token;
+				// debugger;
+				data.remark_id = this.editId;
+				data.remarks = this.textareaBInput;
+				uni.showLoading({
+					
+				})
+				uni.request({
+					url:`${service.BASEURL}/Addressbook/editinfo`,
+					data: data,
+					method:'POST',
+					header:{
+						"content-type":"application/json"
+					},
+					success: (res) => {
+						if(res.data && res.data.code!=200){
+							uni.showToast({
+							    title: res.data.msg,
+								icon:'none'
+							});
+						}else{
+							self.hideModal()
+							self.initdata();
+							self.initremarks();
+						}
+					},
+					complete() {
+						uni.hideLoading()
+					}
+				})
+				
+				
+				console.log(`${this.editId} - ${this.textareaBInput}`);
+				
 			},
 			deleteRemark(id){
 				// console.log('deleteRemark',this.textareaBInput)
@@ -511,7 +586,7 @@
 						"content-type":"application/json"
 					},
 					success: (res) => {
-						if(res.data && res.data.code!=200){
+						if(res.data && res.data.code!=1){
 							uni.showToast({
 							    title: res.data.msg,
 								icon:'none'
