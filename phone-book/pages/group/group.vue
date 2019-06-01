@@ -197,6 +197,7 @@ export default {
 	},
 	onShow() { 
 		this.initData();
+		this.initOriGroupData();
 	},
 	methods: {
 		initData(){
@@ -235,8 +236,54 @@ export default {
 							self.personList = res.data.data.list;
 						}
 						// navList
-						self.updateNavList();
+						
 					}
+				},
+				complete() {
+					uni.hideLoading()
+				}
+			})
+		},
+		initOriGroupData(){
+			let self = this;
+			if(!this.info){
+				return;
+			}
+			let ndata = JSON.parse(this.info);
+			
+			let data = {}
+			data.password = this.password;
+			data.id = ndata.id;
+			data.account = ndata.account;
+			data.token = ndata.token;
+			
+			uni.showLoading()
+			uni.request({
+				url:`${service.BASEURL}/Addbookcategory/index`,
+				data: data,
+				method:'POST',
+				header:{
+					"content-type":"application/json"
+				},
+				success: (res) => {
+					if(res.data && res.data.code!=200){
+						uni.showToast({
+						    title: res.data.msg,
+							icon:'none'
+						});
+					}else{
+						let list = [];
+						 if(res.data.data)
+						 {
+							  uni.setStorage({
+							 	 key:'groupList',
+							 	 data:res.data.data,
+								 success() {
+								 	self.updateNavList();
+								 }
+							 })
+						 }							
+					}						
 				},
 				complete() {
 					uni.hideLoading()
