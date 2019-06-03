@@ -228,10 +228,10 @@ export default {
 						});
 					}else{
 						let list = []
-						if(res.data.data && res.data.data.group && res.data.data.group.length>0){
+						if(res.data.data && res.data.data.group){
 							self.list = res.data.data.group
 						}
-						if(res.data.data && res.data.data.list && res.data.data.list.length>0)
+						if(res.data.data && res.data.data.list)
 						{
 							self.personList = res.data.data.list;
 						}

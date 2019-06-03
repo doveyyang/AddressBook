@@ -1,14 +1,6 @@
 <template>
 	<view>
-		<form>			
-		<!-- 	<view class="cu-form-group margin-top">
-				<view class="title">录入日期</view>
-				<picker mode="date" :value="date" start="2019-01-01" end="2020-01-01" @change="DateChange">
-					<view class="picker">
-						{{date}}
-					</view>
-				</picker>
-			</view> -->
+		<form>					
 			<view class="cu-form-group margin-top">
 				<view class="title">姓名</view>
 				<input placeholder="请填写姓名" name="input" v-model="name"></input>
@@ -138,7 +130,6 @@
 								icon:'none'
 							});
 						}else{
-							debugger;
 							uni.showToast({
 							    title: res.data.msg,
 								success() {
@@ -248,6 +239,10 @@
 </script>
 
 <style lang="scss">
+input{
+	text-align: right;
+	color: #999;
+}
 .btn-row{
 	padding: 20upx;
 }

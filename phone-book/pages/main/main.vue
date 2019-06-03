@@ -170,9 +170,9 @@
 								
 							 }
 							
-							if(list.length>0){
+							// if(list.length>0){
 								self.list = list;
-							}							
+							// }							
 						}						
 					},
 					complete() {
